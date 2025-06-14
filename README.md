@@ -418,5 +418,3 @@ make run_tests
 # If coverage needed
 make run_coverage_test
 ```
-
-#### Inspired by [sitemap_generator](https://github.com/KoNekoD/go-sitemap-generator)
