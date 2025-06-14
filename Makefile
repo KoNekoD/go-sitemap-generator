@@ -1,4 +1,10 @@
-git_tag_increment_minor_version:
+PHONY: help
+.DEFAULT_GOAL := help
+
+help: ## This help.
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+git_tag_increment_minor_version: ## Release with increment minor tag version
 	@TAG_ON_HEAD_COMMIT=$$(git tag --points-at HEAD); \
 	if [ -n "$$TAG_ON_HEAD_COMMIT" ]; \
 	then \
@@ -16,3 +22,13 @@ git_tag_increment_minor_version:
 			git push origin "$$NEW_TAG"; \
 			echo "Tag '$$NEW_TAG' successfully created and pushed."; \
 	fi
+
+run_tests: ## Run tests
+	cd tests && go test -v ./...
+
+run_coverage_test: ## Run coverage tests
+	cd tests && \
+	go test ./... \
+      -coverpkg=github.com/KoNekoD/go-sitemap-generator/pkg/... \
+      -coverprofile=coverage.out
+	go tool cover -html=tests/coverage.out
