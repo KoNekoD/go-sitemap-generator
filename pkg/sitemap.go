@@ -14,10 +14,10 @@ type Sitemap struct {
 }
 
 // NewSitemap returns the created the Sitemap's pointer
-func NewSitemap(c ...Config) *Sitemap {
+func NewSitemap(c ...*Config) *Sitemap {
 	var config *Config
 	if len(c) > 0 {
-		config = &c[0]
+		config = c[0]
 	} else {
 		config = NewConfig()
 	}
