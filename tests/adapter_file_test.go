@@ -1,8 +1,9 @@
-package stm
+package tests
 
 import (
 	"bytes"
 	"compress/gzip"
+	"github.com/KoNekoD/go-sitemap-generator/pkg"
 	"io"
 	"os"
 	"reflect"
@@ -10,9 +11,9 @@ import (
 )
 
 func TestFileAdapter(t *testing.T) {
-	l := NewLocation(NewConfig().SetCompress(false))
+	l := stm.NewLocation(stm.NewConfig().SetCompress(false))
 
-	a := NewFileAdapter()
+	a := stm.NewFileAdapter()
 
 	a.Write(l, []byte("Hello world"))
 
@@ -31,9 +32,9 @@ func TestFileAdapter(t *testing.T) {
 }
 
 func TestFileAdapterGzip(t *testing.T) {
-	l := NewLocation(NewConfig())
+	l := stm.NewLocation(stm.NewConfig())
 
-	a := NewFileAdapter()
+	a := stm.NewFileAdapter()
 
 	a.Write(l, []byte("Hello world"))
 

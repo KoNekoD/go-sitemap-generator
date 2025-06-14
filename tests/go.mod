@@ -1,17 +1,18 @@
-module github.com/KoNekoD/go-sitemap-generator
+module tests
 
-go 1.23.1
+go 1.24
 
 require (
+	github.com/KoNekoD/go-sitemap-generator v0.0.0-20250614140541-8697b2637a34
 	github.com/aws/aws-sdk-go v1.55.7
 	github.com/beevik/etree v1.5.1
-	github.com/fatih/structs v1.1.0
+	github.com/clbanning/mxj v1.8.4
 	github.com/minio/minio-go/v7 v7.0.93
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/fatih/structs v1.1.0 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -27,5 +28,4 @@ require (
 	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -1,8 +1,9 @@
-package stm
+package tests
 
 import (
 	"bytes"
 	"fmt"
+	"github.com/KoNekoD/go-sitemap-generator/pkg"
 	"os"
 	"reflect"
 	"testing"
@@ -11,53 +12,77 @@ import (
 )
 
 func TestSitemap(t *testing.T) {
-	t.Run("MaxProc", func(t *testing.T) {
-		NewSitemap(Config{MaxProc: 100})
-	})
+	t.Run(
+		"MaxProc", func(t *testing.T) {
+			stm.NewSitemap(stm.Config{MaxProc: 100})
+		},
+	)
 
-	t.Run("FullOnAddErr", func(t *testing.T) {
-		c := NewConfig()
-		sm := NewSitemap(*c).Create()
+	t.Run(
+		"FullOnAddErr", func(t *testing.T) {
+			c := stm.NewConfig()
+			sm := stm.NewSitemap(*c).Create()
 
-		for i := range 50000 {
-			sm.Add(URL{{"loc", fmt.Sprintf("http://www.example.com/%d", i)}})
-		}
+			for i := range 50000 {
+				sm.Add(stm.URL{{"loc", fmt.Sprintf("http://www.example.com/%d", i)}})
+			}
 
-		_ = os.RemoveAll("public")
-	})
+			_ = os.RemoveAll("public")
+		},
+	)
 
-	t.Run("InvalidUrl", func(t *testing.T) {
-		c := NewConfig().SetOnInvalidUrl(func(err error) {})
-		sm := NewSitemap(*c).Create()
+	t.Run(
+		"InvalidUrl", func(t *testing.T) {
+			c := stm.NewConfig().SetOnInvalidUrl(func(err error) {})
+			sm := stm.NewSitemap(*c).Create()
 
-		sm.Add(URL{{"aaa", "http://www.example.com"}})
-	})
+			sm.Add(stm.URL{{"aaa", "http://www.example.com"}})
+		},
+	)
 
-	t.Run("XMLContent", func(t *testing.T) {
-		out := NewSitemap(*NewConfig()).Create().Add(URL{{"loc", "http://www.example.com"}}).XMLContent()
-		if len(out) == 0 {
-			t.Fatalf("Should be content")
-		}
-	})
+	t.Run(
+		"XMLContent", func(t *testing.T) {
+			out := stm.NewSitemap(*stm.NewConfig()).Create().Add(
+				stm.URL{
+					{
+						"loc",
+						"http://www.example.com",
+					},
+				},
+			).XMLContent()
+			if len(out) == 0 {
+				t.Fatalf("Should be content")
+			}
+		},
+	)
 
-	t.Run("PingSearchEngines", func(t *testing.T) {
-		NewSitemap(*NewConfig()).PingSearchEngines()
-	})
+	t.Run(
+		"PingSearchEngines", func(t *testing.T) {
+			stm.NewSitemap(*stm.NewConfig()).PingSearchEngines()
+		},
+	)
 }
 
 func TestSitemapGenerator(t *testing.T) {
-	buf := BufferAdapter{}
+	buf := stm.BufferAdapter{}
 
-	sm := NewSitemap()
+	sm := stm.NewSitemap()
 	sm.SetPretty(true)
 	sm.SetVerbose(false)
 	sm.SetAdp(&buf)
 
 	sm.Create()
 	for i := 1; i <= 10; i++ {
-		sm.Add(URL{{"loc", "home"}, {"changefreq", "always"}, {"mobile", true}, {"lastmod", "2018-10-28T17:56:02+09:00"}})
-		sm.Add(URL{{"loc", "readme"}, {"lastmod", "2018-10-28T17:56:02+09:00"}})
-		sm.Add(URL{{"loc", "aboutme"}, {"priority", 0.1}, {"lastmod", "2018-10-28T17:56:02+09:00"}})
+		sm.Add(
+			stm.URL{
+				{"loc", "home"},
+				{"changefreq", "always"},
+				{"mobile", true},
+				{"lastmod", "2018-10-28T17:56:02+09:00"},
+			},
+		)
+		sm.Add(stm.URL{{"loc", "readme"}, {"lastmod", "2018-10-28T17:56:02+09:00"}})
+		sm.Add(stm.URL{{"loc", "aboutme"}, {"priority", 0.1}, {"lastmod", "2018-10-28T17:56:02+09:00"}})
 	}
 	sm.Finalize()
 

@@ -1,7 +1,8 @@
-package stm
+package tests
 
 import (
 	"bytes"
+	"github.com/KoNekoD/go-sitemap-generator/pkg"
 	"github.com/beevik/etree"
 	"github.com/clbanning/mxj"
 	"reflect"
@@ -10,19 +11,19 @@ import (
 )
 
 func TestBlank(t *testing.T) {
-	if _, err := NewSitemapURL(&Config{}, URL{}); err == nil {
+	if _, err := stm.NewSitemapURL(&stm.Config{}, stm.URL{}); err == nil {
 		t.Errorf(`Failed to validate blank arg ( URL{} ): %v`, err)
 	}
 }
 
 func TestItHasLocElement(t *testing.T) {
-	if _, err := NewSitemapURL(&Config{}, URL{}); err == nil {
+	if _, err := stm.NewSitemapURL(&stm.Config{}, stm.URL{}); err == nil {
 		t.Errorf(`Failed to validate about must have loc attribute in URL type ( URL{} ): %v`, err)
 	}
 }
 
 func TestJustSetLocElement(t *testing.T) {
-	smu, err := NewSitemapURL(&Config{}, URL{{"loc", "path"}, {"host", "http://example.com"}})
+	smu, err := stm.NewSitemapURL(&stm.Config{}, stm.URL{{"loc", "path"}, {"host", "http://example.com"}})
 
 	if err != nil {
 		t.Fatalf(`Fatal to validate! This is a critical error: %v`, err)
@@ -44,7 +45,7 @@ func TestJustSetLocElement(t *testing.T) {
 }
 
 func TestJustSetLocElementAndThenItNeedsCompleteValues(t *testing.T) {
-	smu, err := NewSitemapURL(&Config{}, URL{{"loc", "path"}, {"host", "http://example.com"}})
+	smu, err := stm.NewSitemapURL(&stm.Config{}, stm.URL{{"loc", "path"}, {"host", "http://example.com"}})
 
 	if err != nil {
 		t.Fatalf(`Fatal to validate! This is a critical error: %v`, err)
@@ -92,7 +93,16 @@ func TestJustSetLocElementAndThenItNeedsCompleteValues(t *testing.T) {
 }
 
 func TestSetNilValue(t *testing.T) {
-	smu, err := NewSitemapURL(&Config{}, URL{{"loc", "path"}, {"priority", nil}, {"changefreq", nil}, {"lastmod", nil}, {"host", "http://example.com"}})
+	smu, err := stm.NewSitemapURL(
+		&stm.Config{},
+		stm.URL{
+			{"loc", "path"},
+			{"priority", nil},
+			{"changefreq", nil},
+			{"lastmod", nil},
+			{"host", "http://example.com"},
+		},
+	)
 
 	if err != nil {
 		t.Fatalf(`Fatal to validate! This is a critical error: %v`, err)
@@ -129,7 +139,7 @@ func TestSetNilValue(t *testing.T) {
 }
 
 func TestAutoGenerateSitemapHost(t *testing.T) {
-	smu, err := NewSitemapURL(&Config{}, URL{{"loc", "path"}, {"host", "http://example.com"}})
+	smu, err := stm.NewSitemapURL(&stm.Config{}, stm.URL{{"loc", "path"}, {"host", "http://example.com"}})
 
 	if err != nil {
 		t.Fatalf(`Fatal to validate! This is a critical error: %v`, err)
@@ -154,18 +164,24 @@ func TestNewsSitemaps(t *testing.T) {
 	doc := etree.NewDocument()
 	root := doc.CreateElement("root")
 
-	data := URL{{"loc", "/news"}, {"news", URL{
-		{"publication", URL{
-			{"name", "Example"},
-			{"language", "en"},
-		}},
-		{"title", "My Article"},
-		{"keywords", "my article, articles about myself"},
-		{"stock_tickers", "SAO:PETR3"},
-		{"publication_date", "2011-08-22"},
-		{"access", "Subscription"},
-		{"genres", "PressRelease"},
-	}}}
+	data := stm.URL{
+		{"loc", "/news"}, {
+			"news", stm.URL{
+				{
+					"publication", stm.URL{
+						{"name", "Example"},
+						{"language", "en"},
+					},
+				},
+				{"title", "My Article"},
+				{"keywords", "my article, articles about myself"},
+				{"stock_tickers", "SAO:PETR3"},
+				{"publication_date", "2011-08-22"},
+				{"access", "Subscription"},
+				{"genres", "PressRelease"},
+			},
+		},
+	}
 	expect := []byte(`
 	<root>
 		<news:news>
@@ -182,7 +198,7 @@ func TestNewsSitemaps(t *testing.T) {
 		</news:news>
 	</root>`)
 
-	SetBuilderElementValue(root, data, "news")
+	stm.SetBuilderElementValue(root, data, "news")
 	buf := &bytes.Buffer{}
 	_, _ = doc.WriteTo(buf)
 
@@ -198,10 +214,14 @@ func TestImageSitemaps(t *testing.T) {
 	doc := etree.NewDocument()
 	root := doc.CreateElement("root")
 
-	data := URL{{"loc", "/images"}, {"image", []URL{
-		{{"loc", "http://www.example.com/image.png"}, {"title", "Image"}},
-		{{"loc", "http://www.example.com/image1.png"}, {"title", "Image1"}},
-	}}}
+	data := stm.URL{
+		{"loc", "/images"}, {
+			"image", []stm.URL{
+				{{"loc", "http://www.example.com/image.png"}, {"title", "Image"}},
+				{{"loc", "http://www.example.com/image1.png"}, {"title", "Image1"}},
+			},
+		},
+	}
 	expect := []byte(`
 	<root>
 		<image:image>
@@ -214,7 +234,7 @@ func TestImageSitemaps(t *testing.T) {
 		</image:image>
 	</root>`)
 
-	SetBuilderElementValue(root, data, "image")
+	stm.SetBuilderElementValue(root, data, "image")
 	buf := &bytes.Buffer{}
 	_, _ = doc.WriteTo(buf)
 
@@ -230,14 +250,18 @@ func TestVideoSitemaps(t *testing.T) {
 	doc := etree.NewDocument()
 	root := doc.CreateElement("root")
 
-	data := URL{{"loc", "/videos"}, {"video", URL{
-		{"thumbnail_loc", "http://www.example.com/video1_thumbnail.png"},
-		{"title", "Title"},
-		{"description", "Description"},
-		{"content_loc", "http://www.example.com/cool_video.mpg"},
-		{"category", "Category"},
-		{"tag", []string{"one", "two", "three"}},
-	}}}
+	data := stm.URL{
+		{"loc", "/videos"}, {
+			"video", stm.URL{
+				{"thumbnail_loc", "http://www.example.com/video1_thumbnail.png"},
+				{"title", "Title"},
+				{"description", "Description"},
+				{"content_loc", "http://www.example.com/cool_video.mpg"},
+				{"category", "Category"},
+				{"tag", []string{"one", "two", "three"}},
+			},
+		},
+	}
 
 	expect := []byte(`
 	<root>
@@ -253,7 +277,7 @@ func TestVideoSitemaps(t *testing.T) {
 		</video:video>
 	</root>`)
 
-	SetBuilderElementValue(root, data, "video")
+	stm.SetBuilderElementValue(root, data, "video")
 	buf := &bytes.Buffer{}
 	_, _ = doc.WriteTo(buf)
 
@@ -269,7 +293,7 @@ func TestGeoSitemaps(t *testing.T) {
 	doc := etree.NewDocument()
 	root := doc.CreateElement("root")
 
-	data := URL{{"loc", "/geos"}, {"geo", URL{{"format", "kml"}}}}
+	data := stm.URL{{"loc", "/geos"}, {"geo", stm.URL{{"format", "kml"}}}}
 
 	expect := []byte(`
 	<root>
@@ -278,7 +302,7 @@ func TestGeoSitemaps(t *testing.T) {
 		</geo:geo>
 	</root>`)
 
-	SetBuilderElementValue(root, data, "geo")
+	stm.SetBuilderElementValue(root, data, "geo")
 	buf := &bytes.Buffer{}
 	_, _ = doc.WriteTo(buf)
 
@@ -294,7 +318,7 @@ func TestMobileSitemaps(t *testing.T) {
 	doc := etree.NewDocument()
 	root := doc.CreateElement("root")
 
-	data := URL{{"loc", "/mobile"}, {"mobile", true}}
+	data := stm.URL{{"loc", "/mobile"}, {"mobile", true}}
 
 	expect := []byte(`
 	<root>
@@ -302,8 +326,8 @@ func TestMobileSitemaps(t *testing.T) {
 	  <mobile:mobile/>
 	</root>`)
 
-	SetBuilderElementValue(root, data.URLJoinBy("loc", "host", "loc"), "loc")
-	SetBuilderElementValue(root, data, "mobile")
+	stm.SetBuilderElementValue(root, data.URLJoinBy("loc", "host", "loc"), "loc")
+	stm.SetBuilderElementValue(root, data, "mobile")
 
 	buf := &bytes.Buffer{}
 	_, _ = doc.WriteTo(buf)
@@ -321,18 +345,22 @@ func TestAlternateLinks(t *testing.T) {
 	root := doc.CreateElement("root")
 
 	loc := "/alternates"
-	data := URL{{"loc", loc}, {"xhtml:link", []Attr{
-		{
-			"rel":      "alternate",
-			"hreflang": "zh-tw",
-			"href":     loc + "?locale=zh-tw",
+	data := stm.URL{
+		{"loc", loc}, {
+			"xhtml:link", []stm.Attr{
+				{
+					"rel":      "alternate",
+					"hreflang": "zh-tw",
+					"href":     loc + "?locale=zh-tw",
+				},
+				{
+					"rel":      "alternate",
+					"hreflang": "en-us",
+					"href":     loc + "?locale=en-us",
+				},
+			},
 		},
-		{
-			"rel":      "alternate",
-			"hreflang": "en-us",
-			"href":     loc + "?locale=en-us",
-		},
-	}}}
+	}
 
 	expect := []byte(`
        <root>
@@ -341,8 +369,8 @@ func TestAlternateLinks(t *testing.T) {
          <xhtml:link rel="alternate" hreflang="en-us" href="/alternates?locale=en-us"/>
        </root>`)
 
-	SetBuilderElementValue(root, data.URLJoinBy("loc", "host", "loc"), "loc")
-	SetBuilderElementValue(root, data, "xhtml:link")
+	stm.SetBuilderElementValue(root, data.URLJoinBy("loc", "host", "loc"), "loc")
+	stm.SetBuilderElementValue(root, data, "xhtml:link")
 
 	buf := &bytes.Buffer{}
 	_, _ = doc.WriteTo(buf)
@@ -359,15 +387,25 @@ func TestAttr(t *testing.T) {
 	doc := etree.NewDocument()
 	root := doc.CreateElement("root")
 
-	data := URL{{"loc", "/videos"}, {"video", URL{
-		{"thumbnail_loc", "http://www.example.com/video1_thumbnail.png"},
-		{"title", "Title"},
-		{"description", "Description"},
-		{"content_loc", "http://www.example.com/cool_video.mpg"},
-		{"category", "Category"},
-		{"tag", []string{"one", "two", "three"}},
-		{"player_loc", Attrs{"https://f.vimeocdn.com/p/flash/moogaloop/6.2.9/moogaloop.swf?clip_id=26", Attr{"allow_embed": "Yes", "autoplay": "autoplay=1"}}},
-	}}}
+	data := stm.URL{
+		{"loc", "/videos"}, {
+			"video", stm.URL{
+				{"thumbnail_loc", "http://www.example.com/video1_thumbnail.png"},
+				{"title", "Title"},
+				{"description", "Description"},
+				{"content_loc", "http://www.example.com/cool_video.mpg"},
+				{"category", "Category"},
+				{"tag", []string{"one", "two", "three"}},
+				{
+					"player_loc",
+					stm.Attrs{
+						"https://f.vimeocdn.com/p/flash/moogaloop/6.2.9/moogaloop.swf?clip_id=26",
+						stm.Attr{"allow_embed": "Yes", "autoplay": "autoplay=1"},
+					},
+				},
+			},
+		},
+	}
 
 	expect := []byte(`
 	<root>
@@ -384,7 +422,7 @@ func TestAttr(t *testing.T) {
 		</video:video>
 	</root>`)
 
-	SetBuilderElementValue(root, data, "video")
+	stm.SetBuilderElementValue(root, data, "video")
 
 	buf := &bytes.Buffer{}
 	_, _ = doc.WriteTo(buf)
@@ -401,15 +439,25 @@ func TestAttrWithoutTypedef(t *testing.T) {
 	doc := etree.NewDocument()
 	root := doc.CreateElement("root")
 
-	data := URL{{"loc", "/videos"}, {"video", URL{
-		{"thumbnail_loc", "http://www.example.com/video1_thumbnail.png"},
-		{"title", "Title"},
-		{"description", "Description"},
-		{"content_loc", "http://www.example.com/cool_video.mpg"},
-		{"category", "Category"},
-		{"tag", []string{"one", "two", "three"}},
-		{"player_loc", Attrs{"https://f.vimeocdn.com/p/flash/moogaloop/6.2.9/moogaloop.swf?clip_id=26", map[string]string{"allow_embed": "Yes", "autoplay": "autoplay=1"}}},
-	}}}
+	data := stm.URL{
+		{"loc", "/videos"}, {
+			"video", stm.URL{
+				{"thumbnail_loc", "http://www.example.com/video1_thumbnail.png"},
+				{"title", "Title"},
+				{"description", "Description"},
+				{"content_loc", "http://www.example.com/cool_video.mpg"},
+				{"category", "Category"},
+				{"tag", []string{"one", "two", "three"}},
+				{
+					"player_loc",
+					stm.Attrs{
+						"https://f.vimeocdn.com/p/flash/moogaloop/6.2.9/moogaloop.swf?clip_id=26",
+						map[string]string{"allow_embed": "Yes", "autoplay": "autoplay=1"},
+					},
+				},
+			},
+		},
+	}
 
 	expect := []byte(`
 	<root>
@@ -426,7 +474,7 @@ func TestAttrWithoutTypedef(t *testing.T) {
 		</video:video>
 	</root>`)
 
-	SetBuilderElementValue(root, data, "video")
+	stm.SetBuilderElementValue(root, data, "video")
 
 	buf := &bytes.Buffer{}
 	_, _ = doc.WriteTo(buf)
@@ -449,45 +497,59 @@ func BenchmarkGenerateXML(b *testing.B) {
 	for k := 0; k <= forPerformance; k++ {
 		for i := 1; i <= forPerformance; i++ {
 
-			var smu SitemapURL
-			var data URL
+			var smu stm.SitemapURL
+			var data stm.URL
 
-			data = URL{{"loc", "/mobile"}, {"mobile", true}}
-			smu, _ = NewSitemapURL(&Config{}, data)
+			data = stm.URL{{"loc", "/mobile"}, {"mobile", true}}
+			smu, _ = stm.NewSitemapURL(&stm.Config{}, data)
 			smu.XML()
 
-			data = URL{{"loc", "/images"}, {"image", []URL{
-				{{"loc", "http://www.example.com/image.png"}, {"title", "Image"}},
-				{{"loc", "http://www.example.com/image1.png"}, {"title", "Image1"}},
-			}}}
-			smu, _ = NewSitemapURL(&Config{}, data)
+			data = stm.URL{
+				{"loc", "/images"}, {
+					"image", []stm.URL{
+						{{"loc", "http://www.example.com/image.png"}, {"title", "Image"}},
+						{{"loc", "http://www.example.com/image1.png"}, {"title", "Image1"}},
+					},
+				},
+			}
+			smu, _ = stm.NewSitemapURL(&stm.Config{}, data)
 			smu.XML()
 
-			data = URL{{"loc", "/videos"}, {"video", URL{
-				{"thumbnail_loc", "http://www.example.com/video1_thumbnail.png"},
-				{"title", "Title"},
-				{"description", "Description"},
-				{"content_loc", "http://www.example.com/cool_video.mpg"},
-				{"category", "Category"},
-				{"tag", []string{"one", "two", "three"}},
-			}}}
-			smu, _ = NewSitemapURL(&Config{}, data)
+			data = stm.URL{
+				{"loc", "/videos"}, {
+					"video", stm.URL{
+						{"thumbnail_loc", "http://www.example.com/video1_thumbnail.png"},
+						{"title", "Title"},
+						{"description", "Description"},
+						{"content_loc", "http://www.example.com/cool_video.mpg"},
+						{"category", "Category"},
+						{"tag", []string{"one", "two", "three"}},
+					},
+				},
+			}
+			smu, _ = stm.NewSitemapURL(&stm.Config{}, data)
 			smu.XML()
 
-			data = URL{{"loc", "/news"}, {"news", URL{
-				{"publication", URL{
-					{"name", "Example"},
-					{"language", "en"},
-				}},
-				{"title", "My Article"},
-				{"keywords", "my article, articles about myself"},
-				{"stock_tickers", "SAO:PETR3"},
-				{"publication_date", "2011-08-22"},
-				{"access", "Subscription"},
-				{"genres", "PressRelease"},
-			}}}
+			data = stm.URL{
+				{"loc", "/news"}, {
+					"news", stm.URL{
+						{
+							"publication", stm.URL{
+								{"name", "Example"},
+								{"language", "en"},
+							},
+						},
+						{"title", "My Article"},
+						{"keywords", "my article, articles about myself"},
+						{"stock_tickers", "SAO:PETR3"},
+						{"publication_date", "2011-08-22"},
+						{"access", "Subscription"},
+						{"genres", "PressRelease"},
+					},
+				},
+			}
 
-			smu, _ = NewSitemapURL(&Config{}, data)
+			smu, _ = stm.NewSitemapURL(&stm.Config{}, data)
 			smu.XML()
 		}
 	}

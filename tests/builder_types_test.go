@@ -1,13 +1,14 @@
-package stm
+package tests
 
 import (
+	"github.com/KoNekoD/go-sitemap-generator/pkg"
 	"reflect"
 	"testing"
 )
 
 func TestURLType(t *testing.T) {
-	url := URL{{"loc", "1"}, {"host", "http://example.com"}}
-	expect := URL{{"loc", "http://example.com/1"}, {"host", "http://example.com"}}
+	url := stm.URL{{"loc", "1"}, {"host", "http://example.com"}}
+	expect := stm.URL{{"loc", "http://example.com/1"}, {"host", "http://example.com"}}
 
 	url = url.URLJoinBy("loc", "host", "loc")
 

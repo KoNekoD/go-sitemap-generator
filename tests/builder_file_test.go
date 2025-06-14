@@ -1,19 +1,20 @@
-package stm
+package tests
 
 import (
 	"fmt"
+	"github.com/KoNekoD/go-sitemap-generator/pkg"
 	"os"
 	"testing"
 )
 
 func TestBuilderFile(t *testing.T) {
-	c := NewConfig().SetCompress(false)
+	c := stm.NewConfig().SetCompress(false)
 
-	l := NewLocation(c)
+	l := stm.NewLocation(c)
 
-	b := NewBuilderFile(c, l)
+	b := stm.NewBuilderFile(c, l)
 
-	err := b.Add(URL{{"loc", "http://www.example.com"}})
+	err := b.Add(stm.URL{{"loc", "http://www.example.com"}})
 	if err != nil {
 		t.Fatalf("Failed to add url in BuilderFile: %s", err)
 	}
@@ -41,14 +42,14 @@ func TestBuilderFile(t *testing.T) {
 }
 
 func TestBuilderFileOverflow(t *testing.T) {
-	c := NewConfig().SetCompress(false)
+	c := stm.NewConfig().SetCompress(false)
 
-	l := NewLocation(c)
+	l := stm.NewLocation(c)
 
-	b := NewBuilderFile(c, l)
+	b := stm.NewBuilderFile(c, l)
 
 	for i := range 50001 {
-		err := b.Add(URL{{"loc", fmt.Sprintf("http://www.example.com/%d", i)}})
+		err := b.Add(stm.URL{{"loc", fmt.Sprintf("http://www.example.com/%d", i)}})
 		if err != nil && !(i == 49999 && err.FullError()) {
 			t.Fatalf("Failed to add url in BuilderFile: %s", err)
 		}
@@ -80,13 +81,13 @@ func TestBuilderFileOverflow(t *testing.T) {
 }
 
 func TestBuilderFileInvalidUrl(t *testing.T) {
-	c := NewConfig().SetCompress(false)
+	c := stm.NewConfig().SetCompress(false)
 
-	l := NewLocation(c)
+	l := stm.NewLocation(c)
 
-	b := NewBuilderFile(c, l)
+	b := stm.NewBuilderFile(c, l)
 
-	err := b.Add(URL{{"aaa", "http://www.example.com/"}})
+	err := b.Add(stm.URL{{"aaa", "http://www.example.com/"}})
 	if !err.InvalidUrlErr() {
 		t.Fatalf("Should be invalid url error")
 	}

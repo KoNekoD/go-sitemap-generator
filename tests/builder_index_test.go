@@ -1,18 +1,19 @@
-package stm
+package tests
 
 import (
+	"github.com/KoNekoD/go-sitemap-generator/pkg"
 	"os"
 	"testing"
 )
 
 func TestBuilderIndexFile(t *testing.T) {
-	c := NewConfig().SetCompress(false)
+	c := stm.NewConfig().SetCompress(false)
 
-	l := NewLocation(c)
+	l := stm.NewLocation(c)
 
-	b := NewBuilderIndexFile(c, l)
+	b := stm.NewBuilderIndexFile(c, l)
 
-	err := b.Add(&BuilderFile{Config: c, loc: l})
+	err := b.Add(stm.NewBuilderFile(c, l))
 	if err != nil {
 		t.Fatalf("Failed to add url in BuilderFile: %s", err)
 	}

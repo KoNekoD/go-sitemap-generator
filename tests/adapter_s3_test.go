@@ -1,8 +1,9 @@
-package stm
+package tests
 
 import (
 	"bytes"
 	"compress/gzip"
+	"github.com/KoNekoD/go-sitemap-generator/pkg"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"io"
 	"net/http"
@@ -27,10 +28,10 @@ func TestS3Adapter(t *testing.T) {
 	rt := &MockRoundTripper{}
 	rt.Responses = append(rt.Responses, &http.Response{StatusCode: http.StatusOK})
 
-	l := NewLocation(NewConfig().SetCompress(false))
+	l := stm.NewLocation(stm.NewConfig().SetCompress(false))
 
 	same := "test"
-	a := NewS3Adapter(same, same, same, credentials.NewStaticCredentials(same, same, same))
+	a := stm.NewS3Adapter(same, same, same, credentials.NewStaticCredentials(same, same, same))
 
 	a.HttpClient = &http.Client{Transport: rt}
 
@@ -51,10 +52,10 @@ func TestS3AdapterGzip(t *testing.T) {
 	rt := &MockRoundTripper{}
 	rt.Responses = append(rt.Responses, &http.Response{StatusCode: http.StatusOK})
 
-	l := NewLocation(NewConfig())
+	l := stm.NewLocation(stm.NewConfig())
 
 	same := "test"
-	a := NewS3Adapter(same, same, same, credentials.NewStaticCredentials(same, same, same))
+	a := stm.NewS3Adapter(same, same, same, credentials.NewStaticCredentials(same, same, same))
 
 	a.HttpClient = &http.Client{Transport: rt}
 

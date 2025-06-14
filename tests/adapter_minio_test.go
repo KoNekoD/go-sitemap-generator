@@ -1,8 +1,9 @@
-package stm
+package tests
 
 import (
 	"bytes"
 	"compress/gzip"
+	"github.com/KoNekoD/go-sitemap-generator/pkg"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"io"
 	"net/http"
@@ -27,10 +28,10 @@ func TestMinioAdapter(t *testing.T) {
 		&http.Response{StatusCode: http.StatusOK},
 	)
 
-	l := NewLocation(NewConfig().SetCompress(false))
+	l := stm.NewLocation(stm.NewConfig().SetCompress(false))
 
 	same := "test"
-	a := NewMinioAdapter(same, same, credentials.NewStaticV4(same, same, same))
+	a := stm.NewMinioAdapter(same, same, credentials.NewStaticV4(same, same, same))
 
 	a.Transport = rt
 
@@ -68,10 +69,10 @@ func TestMinioAdapterGzip(t *testing.T) {
 		&http.Response{StatusCode: http.StatusOK},
 	)
 
-	l := NewLocation(NewConfig())
+	l := stm.NewLocation(stm.NewConfig())
 
 	same := "test"
-	a := NewMinioAdapter(same, same, credentials.NewStaticV4(same, same, same))
+	a := stm.NewMinioAdapter(same, same, credentials.NewStaticV4(same, same, same))
 
 	a.Transport = rt
 
