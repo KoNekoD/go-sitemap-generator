@@ -406,7 +406,7 @@ The library is organized as follows: a Sitemap structure is created via NewSitem
 behavior via sm.GetConfig, then the user must call sm.Create to create a builder index into which the previously 
 configured sm.GetConfig will be thrown, then the only thing left to do is to call add the page to the sitemap 
 index via sm. 
-Add by throwing stm.URL into it (example `sm.Add(stm.URL{{“loc”, link}, {“changefreq”, ‘weekly’}, {“priority”, priority}})`), 
+Add by throwing stm.URL into it (example `sm.Add(stm.URL{{"loc", link}, {"changefreq", "weekly"}, {"priority", priority}})`), 
 the library itself will slice these links by 50K pages, according to the requirements of Google, after adding the 
 required number of pages it is necessary to call `sm.Finalize()` to trigger the writing of links through the adapter.
 
